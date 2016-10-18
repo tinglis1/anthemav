@@ -126,22 +126,9 @@ class AnthemAV(object):
         self._buffersize = 1024
         self._zone = zone
         self.status = {}
-
-        # print('api:', self._api['sources'])
-
-        # self._response = ''
         self._lastupdatetime = None
 
-        self._selected_source = ''
-        self._source_name_to_number = {v: k for k, v in self._api['sources'][
-                                                        self._model].items()}
-        self._source_number_to_name = self._api['sources'][self._model]
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # self.test()
         self.update()
-
-        # print(self._api['.regex'][self._model][4]['replace'][1])
 
     def _update_status(self, response):
         """Convert the response into a command reponse using api."""
@@ -159,8 +146,9 @@ class AnthemAV(object):
     def send_command(self, cmd):
         """Convert command to payload and send."""
         if cmd in self._api['cmds'][self._model]:
-            payload = self._api['cmds'][self._model][cmd].format(zone=self._zone)
-            # print('Payload convert:', payload)
+            payload = self._api['cmds'][self._model][cmd].format(
+                                                          zone=self._zone)
+            print('Payload convert:', payload)
             response = self._send_payload(payload)
         return response
 
@@ -204,13 +192,11 @@ class AnthemAV(object):
                       payload, self._host, self._port, err)
                 return
 
-            readable, _, _ = select.select(
-                [sock], [], [], self._timeout)
+            readable, _, _ = select.select([sock], [], [], self._timeout)
             if not readable:
-                print(
-                    "Timeout (%s second(s)) waiting for a response after "
-                    "sending %s to %s on port %s." %
-                    self._timeout, payload, self._host, self._port)
+                print("Timeout (%s second(s)) waiting for a response after "
+                      "sending %s to %s on port %s." %
+                      self._timeout, payload, self._host, self._port)
                 return
             self._lastupdatetime = time.time()
             value = sock.recv(self._buffersize).decode().rstrip()
@@ -218,21 +204,15 @@ class AnthemAV(object):
             self._update_status(value)
         return value
 
-    def _test(self):
-        """Open a socket and watch the recieved traffic continuosly."""
-        self.sock.connect((self._host, self._port))
-        chunks = []
-        bytes_recd = 0
-        MSGLEN = 1000
-        while bytes_recd < MSGLEN:
-            chunk = self.sock.recv(1024)
-            print('new chunk')
-            print(chunk.decode())
-            if chunk == '':
-                raise RuntimeError("socket connection broken")
-            chunks.append(chunk)
-            bytes_recd = bytes_recd + len(chunk)
-            print(bytes_recd, len(chunk), 'bytes')
+    def source_get(self, source, type):
+        """Create a reverse dictionary for the sources."""
 
-        # print(''.join(chunks).decode())
+        self._source_s2l = self._api['sources'][self._model]
+        self._source_l2s = {v: k for k, v in self._api['sources'][
+                                                        self._model].items()}
+        return
+
+    def sources_set(self, source):
+        """Set the source list, overriding default list."""
+
         return
