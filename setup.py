@@ -22,7 +22,7 @@ class Tox(TestCommand):
 
 setup(
     name='anthemav',
-    version='0.0.1',
+    version='0.0.2',
     description='Automation Library for Anthem AV receivers',
     long_description=open('README.md').read(),
     author='Tim Inglis',
